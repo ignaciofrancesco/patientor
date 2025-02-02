@@ -1,8 +1,11 @@
+import cors from "cors";
 import express from "express";
+
 const app = express();
 
 /* MIDDLEWARE */
 
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
 /* ROUTES */
