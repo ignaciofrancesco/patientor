@@ -9,10 +9,18 @@ type Patient = {
   name: string;
   dateOfBirth: string;
   ssn: string;
-  gender: string;
+  gender: Gender;
   occupation: string;
 };
 
+type NewPatient = Omit<Patient, "id">;
+
 type PatientNonSensitive = Omit<Patient, "ssn">;
 
-export { Diagnose, Patient, PatientNonSensitive };
+enum Gender {
+  Male = "male",
+  Female = "female",
+  Other = "other",
+}
+
+export { Diagnose, Gender, NewPatient, Patient, PatientNonSensitive };

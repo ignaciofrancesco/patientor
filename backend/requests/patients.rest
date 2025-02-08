@@ -1,0 +1,11 @@
+### NEW PATIENT
+POST http://localhost:3000/api/patients
+Content-Type: application/json
+
+{
+  "name": "Franco Birocco",
+  "dateOfBirth": "1989-04-10",
+  "ssn": "35024684",
+  "gender": "male",
+  "occupation": "Biotechnologist"
+}
