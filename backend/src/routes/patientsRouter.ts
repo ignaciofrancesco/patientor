@@ -1,6 +1,7 @@
 import express, { Response } from "express";
+import { z } from "zod";
 import patientService from "../services/patientService";
-import { PatientNonSensitive } from "../types";
+import { Patient, PatientNonSensitive } from "../types";
 import { toNewPatient } from "../utils";
 
 const patientsRouter = express.Router();
@@ -9,6 +10,24 @@ patientsRouter.get("/", (_req, res: Response<PatientNonSensitive[]>) => {
   const patients = patientService.getAllPatientsNonSensitive();
   res.json(patients);
 });
+
+patientsRouter.get(
+  "/:id",
+  (req, res: Response<PatientNonSensitive | { error: string }>) => {
+    const patientId = req.params.id;
+
+    try {
+      const patient: Patient = patientService.getPatientById(patientId);
+      res.json(patient);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(400).json({ error: "unknown error" });
+      }
+    }
+  }
+);
 
 patientsRouter.post("/", (req, res) => {
   try {
@@ -19,11 +38,11 @@ patientsRouter.post("/", (req, res) => {
 
     res.json(addedPatient);
   } catch (error: unknown) {
-    let errorMessage = "Something went wrong.";
-    if (error instanceof Error) {
-      errorMessage += " Error: " + error.message;
+    if (error instanceof z.ZodError) {
+      res.status(400).send({ error: error.issues });
+    } else {
+      res.status(400).send({ error: "unknown error" });
     }
-    res.status(400).send(errorMessage);
   }
 });
 
