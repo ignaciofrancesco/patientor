@@ -1,12 +1,13 @@
 import { Box } from "@mui/material";
-import { Entry as EntryType } from "../types";
+import { Diagnosis, Entry as EntryType } from "../types";
 
 interface EntryProps {
   entry: EntryType;
+  diagnoses: Diagnosis[];
 }
 
 const Entry = (props: EntryProps) => {
-  const { entry } = props;
+  const { entry, diagnoses } = props;
   return (
     <Box>
       <p>
@@ -14,7 +15,11 @@ const Entry = (props: EntryProps) => {
       </p>
       <ul>
         {entry.diagnosisCodes?.map((dg) => {
-          return <li key={dg}>{dg}</li>;
+          return (
+            <li key={dg}>
+              {dg} {diagnoses.find((d) => d.code === dg)?.name}
+            </li>
+          );
         })}
       </ul>
     </Box>

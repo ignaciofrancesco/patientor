@@ -5,8 +5,9 @@ import { Box, Typography } from "@mui/material";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import diagnosesService from "../services/diagnoses";
 import patientsService from "../services/patients";
-import { Gender, Patient as PatientType } from "../types";
+import { Diagnosis, Gender, Patient as PatientType } from "../types";
 import Entry from "./Entry";
 
 const Patient = () => {
@@ -16,6 +17,7 @@ const Patient = () => {
   /* STATE */
 
   const [patient, setPatient] = useState<PatientType | null>(null);
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 
   /* EFFECTS */
 
@@ -33,11 +35,25 @@ const Patient = () => {
       }
     };
 
+    const fetchDiagnoses = async (): Promise<void> => {
+      try {
+        const diagnoses = await diagnosesService.getAllDiagnoses();
+        setDiagnoses(diagnoses);
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+          console.log("Error: ", error.message);
+        } else {
+          console.log("Unknown error.");
+        }
+      }
+    };
+
     if (!patientId) {
       return;
     }
 
     void fetchPatient(patientId);
+    void fetchDiagnoses();
   }, [patientId]);
 
   if (!patient) {
@@ -64,7 +80,7 @@ const Patient = () => {
       {patient.entries.map((e) => {
         return (
           <Box key={e.id}>
-            <Entry entry={e} />
+            <Entry entry={e} diagnoses={diagnoses} />
           </Box>
         );
       })}
