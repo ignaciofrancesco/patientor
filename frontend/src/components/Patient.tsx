@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import patientsService from "../services/patients";
 import { Gender, Patient as PatientType } from "../types";
+import Entry from "./Entry";
 
 const Patient = () => {
   /* REACT ROUTER */
@@ -45,7 +46,7 @@ const Patient = () => {
 
   return (
     <Box style={{ marginTop: "1rem" }}>
-      <Typography align="left" variant="h6">
+      <Typography align="left" variant="h5">
         {patient.name}{" "}
         {patient.gender === Gender.Male ? (
           <MaleIcon />
@@ -57,6 +58,16 @@ const Patient = () => {
       </Typography>
       <p>SSN: {patient.ssn}</p>
       <p>Occupation: {patient.occupation}</p>
+      <Typography align="left" variant="h6">
+        Entries
+      </Typography>
+      {patient.entries.map((e) => {
+        return (
+          <Box key={e.id}>
+            <Entry entry={e} />
+          </Box>
+        );
+      })}
     </Box>
   );
 };
