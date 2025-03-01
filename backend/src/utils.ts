@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Gender, NewPatient } from "./types";
+import { EntryWithoutId, Gender, NewPatient } from "./types";
 
 // BaseEntry Schema
 const BaseEntrySchema = z.object({
@@ -56,6 +56,13 @@ const EntrySchema = z.discriminatedUnion("type", [
   HospitalEntrySchema,
 ]);
 
+// Entry schema without id
+const EntrySchemaWithoutId = z.discriminatedUnion("type", [
+  HealthCheckEntrySchema.omit({ id: true }).strict(),
+  OccupationalHealthcareEntrySchema.omit({ id: true }).strict(),
+  HospitalEntrySchema.omit({ id: true }).strict(),
+]); // I use strict to enforce no extra attributes
+
 const NewPatientSchema = z.object({
   name: z.string(),
   dateOfBirth: z.string().date(),
@@ -71,4 +78,9 @@ const toNewPatient = (object: unknown): NewPatient => {
   return newPatient;
 };
 
-export { toNewPatient };
+const toNewEntry = (object: unknown): EntryWithoutId => {
+  const newEntry = EntrySchemaWithoutId.parse(object);
+  return newEntry;
+};
+
+export { toNewEntry, toNewPatient };
