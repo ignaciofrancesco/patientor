@@ -1,4 +1,10 @@
-import { Button, Container, Divider, Typography } from "@mui/material";
+import {
+  Button,
+  Container,
+  CssBaseline,
+  Divider,
+  Typography,
+} from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, Route, Routes } from "react-router-dom";
@@ -6,8 +12,8 @@ import { Link, Route, Routes } from "react-router-dom";
 import { apiBaseUrl } from "./constants";
 import { Patient as PatientType } from "./types";
 
-import Patient from "./components/Patient";
 import PatientListPage from "./components/PatientListPage";
+import Patient from "./components/PatientPage/Patient";
 import patientService from "./services/patients";
 
 const App = () => {
@@ -35,26 +41,33 @@ const App = () => {
   /* VIEW */
 
   return (
-    <div className="App">
-      <Container>
-        <Typography variant="h3" style={{ marginBottom: "0.5em" }}>
-          Patientor
-        </Typography>
-        <Button component={Link} to="/" variant="contained" color="primary">
-          Home
-        </Button>
-        <Divider hidden />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <PatientListPage patients={patients} setPatients={setPatients} />
-            }
-          />
-          <Route path="/patients/:id" element={<Patient />} />
-        </Routes>
-      </Container>
-    </div>
+    <>
+      {/* Reset css */}
+      <CssBaseline />
+      <div className="App">
+        <Container>
+          <Typography variant="h3" style={{ marginBottom: "0.5em" }}>
+            Patientor
+          </Typography>
+          <Button component={Link} to="/" variant="contained" color="primary">
+            Home
+          </Button>
+          <Divider hidden />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <PatientListPage
+                  patients={patients}
+                  setPatients={setPatients}
+                />
+              }
+            />
+            <Route path="/patients/:id" element={<Patient />} />
+          </Routes>
+        </Container>
+      </div>
+    </>
   );
 };
 

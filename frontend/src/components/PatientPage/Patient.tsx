@@ -5,9 +5,9 @@ import { Box, Typography } from "@mui/material";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import diagnosesService from "../services/diagnoses";
-import patientsService from "../services/patients";
-import { Diagnosis, Gender, Patient as PatientType } from "../types";
+import diagnosesService from "../../services/diagnoses";
+import patientsService from "../../services/patients";
+import { Diagnosis, Gender, Patient as PatientType } from "../../types";
 import Entry from "./Entry";
 
 const Patient = () => {
@@ -74,7 +74,7 @@ const Patient = () => {
       </Typography>
       <p>SSN: {patient.ssn}</p>
       <p>Occupation: {patient.occupation}</p>
-      <Typography align="left" variant="h6">
+      <Typography align="left" variant="h5">
         Entries
       </Typography>
       {patient.entries.map((e) => {
