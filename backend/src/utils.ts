@@ -4,9 +4,15 @@ import { EntryWithoutId, Gender, NewPatient } from "./types";
 // BaseEntry Schema
 const BaseEntrySchema = z.object({
   id: z.string(),
-  description: z.string(),
-  date: z.string(),
-  specialist: z.string(),
+  description: z
+    .string()
+    .trim()
+    .min(1, { message: "Description cannot be empty" }),
+  date: z.string().date("Date should have format yyyy-mm-dd"),
+  specialist: z
+    .string()
+    .trim()
+    .min(1, { message: "Specialist cannot be empty" }),
   diagnosisCodes: z.array(z.string()).optional(),
 });
 
@@ -33,14 +39,17 @@ const SickLeaveSchema = z.object({
 // OccupationalHealthcareEntry Schema
 const OccupationalHealthcareEntrySchema = BaseEntrySchema.extend({
   type: z.literal("OccupationalHealthcare"),
-  employerName: z.string(),
+  employerName: z
+    .string()
+    .trim()
+    .min(1, { message: "Employer name cannot be empty" }),
   sickLeave: SickLeaveSchema.optional(),
 });
 
 // Discharge Schema
 const DischargeSchema = z.object({
-  date: z.string(),
-  criteria: z.string(),
+  date: z.string().date("Date should have format yyyy-mm-dd"),
+  criteria: z.string().trim().min(1, { message: "Criteria cannot be empty" }),
 });
 
 // HospitalEntry Schema

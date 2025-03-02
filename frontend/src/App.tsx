@@ -5,21 +5,26 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { Link, Route, Routes } from "react-router-dom";
 
 import { apiBaseUrl } from "./constants";
-import { Patient as PatientType } from "./types";
 
 import PatientListPage from "./components/PatientListPage";
 import Patient from "./components/PatientPage/Patient";
 import patientService from "./services/patients";
+import { Entry, Patient as PatientType } from "./types";
+
+import NotificationComponent from "./components/NotificationComponent";
+import { Notification as NotificationType } from "./types";
 
 const App = () => {
   /* STATE */
-
   const [patients, setPatients] = useState<PatientType[]>([]);
+  const [notification, setNotification] = useState<NotificationType | null>(
+    null
+  );
 
   /* EFECTS  */
 
@@ -38,6 +43,62 @@ const App = () => {
   // const match = useMatch("/patients/:id");
   // const patient = match ? patients.find((p) => p.id === match.params.id) : null;
 
+  /* HANDLERS */
+
+  const submitNewEntry = async (
+    newEntry: {
+      description: string;
+      date: string;
+      specialist: string;
+      diagnosisCodes: string[];
+      healthCheckRating: string;
+    },
+    patient: PatientType
+  ) => {
+    try {
+      // create the new entry
+      const entry: Entry = await patientService.createEntryForPatient(
+        newEntry,
+        patient
+      );
+
+      // Add the new entry to entries
+      const entriesModified = [...patient.entries, entry];
+      // Add the modified entries to patient
+      const modifiedPatient = { ...patient, entries: entriesModified };
+      // Create new state for patients
+      const newPatients = patients.map((p) => {
+        return p.id === patient.id ? modifiedPatient : p;
+      });
+      // Set new state of the app
+      setPatients(newPatients);
+
+      setNotification({ message: "New entry added.", severity: "success" });
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+    } catch (error: unknown) {
+      let notificationMessage = "Errors: ";
+
+      if (error instanceof AxiosError) {
+        notificationMessage += error.response?.data.errors
+          .map((e: { code: string; message: string }) => {
+            return e.message;
+          })
+          .join(" | ");
+      }
+
+      setNotification({
+        message: notificationMessage,
+        severity: "error",
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+    }
+  };
+
   /* VIEW */
 
   return (
@@ -52,7 +113,8 @@ const App = () => {
           <Button component={Link} to="/" variant="contained" color="primary">
             Home
           </Button>
-          <Divider hidden />
+          <Divider sx={{ marginBottom: 3, marginTop: 3 }} />
+          <NotificationComponent notification={notification} />
           <Routes>
             <Route
               path="/"
@@ -63,7 +125,12 @@ const App = () => {
                 />
               }
             />
-            <Route path="/patients/:id" element={<Patient />} />
+            <Route
+              path="/patients/:id"
+              element={
+                <Patient patients={patients} submitNewEntry={submitNewEntry} />
+              }
+            />
           </Routes>
         </Container>
       </div>

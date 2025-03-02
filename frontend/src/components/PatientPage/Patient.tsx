@@ -8,9 +8,27 @@ import { useParams } from "react-router-dom";
 import diagnosesService from "../../services/diagnoses";
 import patientsService from "../../services/patients";
 import { Diagnosis, Gender, Patient as PatientType } from "../../types";
+import EntryForm from "../EntryForm";
 import Entry from "./Entry";
 
-const Patient = () => {
+interface PatientProps {
+  patients: PatientType[];
+  submitNewEntry: (
+    newEntry: {
+      description: string;
+      date: string;
+      specialist: string;
+      diagnosisCodes: string[];
+      healthCheckRating: string;
+    },
+    patient: PatientType
+  ) => void;
+}
+
+const Patient = (props: PatientProps) => {
+  /* PROPS */
+  const { patients, submitNewEntry } = props;
+
   /* REACT ROUTER */
   const patientId = useParams().id;
 
@@ -54,7 +72,9 @@ const Patient = () => {
 
     void fetchPatient(patientId);
     void fetchDiagnoses();
-  }, [patientId]);
+  }, [patientId, patients]); // if the user selects another patient, or if the patients state changed, run effect
+
+  /*  VIEW */
 
   if (!patient) {
     return <div>Loading patient...</div>;
@@ -72,8 +92,9 @@ const Patient = () => {
           <TransgenderIcon />
         )}
       </Typography>
-      <p>SSN: {patient.ssn}</p>
-      <p>Occupation: {patient.occupation}</p>
+      <Typography>SSN: {patient.ssn}</Typography>
+      <Typography>Occupation: {patient.occupation}</Typography>
+      <EntryForm patient={patient} submitNewEntry={submitNewEntry} />
       <Typography align="left" variant="h5">
         Entries
       </Typography>

@@ -1,5 +1,5 @@
 import express, { Response } from "express";
-import { z } from "zod";
+import { z, ZodError, ZodIssue } from "zod";
 import patientService from "../services/patientService";
 import { Entry, Patient, PatientNonSensitive } from "../types";
 import { toNewEntry, toNewPatient } from "../utils";
@@ -46,17 +46,30 @@ patientsRouter.post("/", (req, res) => {
   }
 });
 
-patientsRouter.post("/:id/entries", (req, res: Response<Entry>) => {
-  // get entry from req
-  // parse/validate (diagnosis codes are sent in the correct form)
-  const newEntry = toNewEntry(req.body);
-  const patientId = req.params.id;
+patientsRouter.post(
+  "/:id/entries",
+  (req, res: Response<Entry | { errors: Error | ZodIssue[] | string }>) => {
+    try {
+      // get entry from req
+      // parse/validate (diagnosis codes are sent in the correct form)
+      const newEntry = toNewEntry(req.body);
+      const patientId = req.params.id;
 
-  // save the data
-  const entry = patientService.addEntryForPatient(newEntry, patientId);
+      // save the data
+      const entry = patientService.addEntryForPatient(newEntry, patientId);
 
-  // return the new entry as a response
-  res.json(entry);
-});
+      // return the new entry as a response
+      res.json(entry);
+    } catch (error: unknown) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ errors: error.issues });
+      } else if (error instanceof Error) {
+        res.status(500).json({ errors: error.message });
+      } else {
+        res.status(500).json({ errors: "Unknown error." });
+      }
+    }
+  }
+);
 
 export default patientsRouter;

@@ -74,3 +74,8 @@ export interface Patient {
 }
 
 export type PatientFormValues = Omit<Patient, "id" | "entries">;
+
+export interface Notification {
+  message: string;
+  severity: "success" | "error";
+}
