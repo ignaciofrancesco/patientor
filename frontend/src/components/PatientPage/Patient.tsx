@@ -5,35 +5,21 @@ import { Box, Typography } from "@mui/material";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { usePatientsContext } from "../../contexts/usePatientsContext";
 import diagnosesService from "../../services/diagnoses";
 import patientsService from "../../services/patients";
 import { Diagnosis, Gender, Patient as PatientType } from "../../types";
-import EntryForm from "../EntryForm";
+import EntryForm from "../EntryForm/EntryForm";
 import Entry from "./Entry";
 
-interface PatientProps {
-  patients: PatientType[];
-  submitNewEntry: (
-    newEntry: {
-      description: string;
-      date: string;
-      specialist: string;
-      diagnosisCodes: string[];
-      healthCheckRating: string;
-    },
-    patient: PatientType
-  ) => void;
-}
-
-const Patient = (props: PatientProps) => {
+const Patient = () => {
   /* PROPS */
-  const { patients, submitNewEntry } = props;
 
   /* REACT ROUTER */
   const patientId = useParams().id;
 
   /* STATE */
-
+  const { patients } = usePatientsContext();
   const [patient, setPatient] = useState<PatientType | null>(null);
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 
@@ -42,8 +28,8 @@ const Patient = (props: PatientProps) => {
   useEffect(() => {
     const fetchPatient = async (id: string): Promise<void> => {
       try {
-        const patient = await patientsService.getPatientById(id);
-        setPatient(patient);
+        const patientById = await patientsService.getPatientById(id);
+        setPatient(patientById);
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
           console.log("Error: ", error.message);
@@ -94,7 +80,7 @@ const Patient = (props: PatientProps) => {
       </Typography>
       <Typography>SSN: {patient.ssn}</Typography>
       <Typography>Occupation: {patient.occupation}</Typography>
-      <EntryForm patient={patient} submitNewEntry={submitNewEntry} />
+      <EntryForm patient={patient} />
       <Typography align="left" variant="h5">
         Entries
       </Typography>

@@ -1,14 +1,11 @@
 import { CheckCircleOutline } from "@mui/icons-material";
 import ErrorIcon from "@mui/icons-material/Error";
 import { Alert, Typography } from "@mui/material";
-import { Notification as NotificationType } from "../types";
+import { usePatientsContext } from "../contexts/usePatientsContext";
 
-interface NotificationProps {
-  notification: NotificationType | null;
-}
-
-const NotificationComponent = (props: NotificationProps) => {
-  const { notification } = props;
+const NotificationComponent = () => {
+  /* CONTEXT */
+  const { notification } = usePatientsContext();
 
   if (!notification) {
     return null;

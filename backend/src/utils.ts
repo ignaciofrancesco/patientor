@@ -32,8 +32,8 @@ const HealthCheckEntrySchema = BaseEntrySchema.extend({
 
 // SickLeave Schema
 const SickLeaveSchema = z.object({
-  startDate: z.string(),
-  endDate: z.string(),
+  startDate: z.string().date("The start date should be a valid date."),
+  endDate: z.string().date("The end date should be a valid date."),
 });
 
 // OccupationalHealthcareEntry Schema

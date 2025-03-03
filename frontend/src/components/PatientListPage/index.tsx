@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { Patient, PatientFormValues } from "../../types";
 import AddPatientModal from "../AddPatientModal";
@@ -17,18 +17,21 @@ import AddPatientModal from "../AddPatientModal";
 import HealthRatingBar from "../HealthRatingBar";
 
 import { Link } from "react-router-dom";
+import { PatientsContext } from "../../contexts/PatientsContext";
 import patientService from "../../services/patients";
 
-interface Props {
-  patients: Patient[];
-  setPatients: React.Dispatch<React.SetStateAction<Patient[]>>;
-}
-
-const PatientListPage = ({ patients, setPatients }: Props) => {
+const PatientListPage = () => {
   /* STATE */
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<string>();
+
+  /* CONTEXT */
+  const patientsContext = useContext(PatientsContext);
+  if (!patientsContext) {
+    throw new Error("PatientsContext must be used within a PatientsProvider");
+  }
+  const { patients, setPatients } = patientsContext;
 
   /* HANDLERS */
 
