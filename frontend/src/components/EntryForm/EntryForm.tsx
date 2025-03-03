@@ -3,11 +3,17 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   FormControl,
   FormControlLabel,
   FormLabel,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  OutlinedInput,
   Radio,
   RadioGroup,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -16,6 +22,7 @@ import { SyntheticEvent, useState } from "react";
 import { usePatientsContext } from "../../contexts/usePatientsContext";
 import patientService from "../../services/patients";
 import {
+  Diagnosis,
   Discharge,
   Entry,
   EntryWithoutId,
@@ -30,13 +37,14 @@ import OccupationalHealthcareSubform from "./OccupationalHealthcareSubform";
 
 interface EntryFormProps {
   patient: Patient;
+  diagnoses: Diagnosis[];
 }
 
 /* COMPONENT */
 
 const EntryForm = (props: EntryFormProps) => {
   /* PROPS */
-  const { patient } = props;
+  const { patient, diagnoses } = props;
 
   /* STATE */
   const [entryType, setEntryType] = useState<
@@ -45,7 +53,7 @@ const EntryForm = (props: EntryFormProps) => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [specialist, setSpecialist] = useState("");
-  const [diagnosisCodes, setDiagnosisCodes] = useState("");
+  const [selectedDiagnoses, setSelectedDiagnoses] = useState<string[]>([]);
   const [healthCheckRating, setHealthCheckRating] = useState<
     HealthCheckRating | ""
   >("");
@@ -69,7 +77,7 @@ const EntryForm = (props: EntryFormProps) => {
       description,
       date,
       specialist,
-      diagnosisCodes: diagnosisCodes ? diagnosisCodes.split(", ") : undefined,
+      diagnosisCodes: selectedDiagnoses,
     };
 
     let newEntry: EntryWithoutId | null = null;
@@ -78,7 +86,7 @@ const EntryForm = (props: EntryFormProps) => {
     switch (entryType) {
       case "HealthCheck": {
         // Special validation for health check rating
-        if (!healthCheckRating) {
+        if (healthCheckRating === "") {
           setNotification({
             message: "HealthCheckRating is mandatory",
             severity: "error",
@@ -93,7 +101,7 @@ const EntryForm = (props: EntryFormProps) => {
         newEntry = {
           ...baseEntry,
           type: "HealthCheck",
-          healthCheckRating: healthCheckRating,
+          healthCheckRating,
         };
         break;
       }
@@ -148,7 +156,7 @@ const EntryForm = (props: EntryFormProps) => {
       setDescription("");
       setDate("");
       setSpecialist("");
-      setDiagnosisCodes("");
+      setSelectedDiagnoses([]);
       setHealthCheckRating("");
       setDischarge({ date: "", criteria: "" });
       setEmployerName("");
@@ -209,6 +217,17 @@ const EntryForm = (props: EntryFormProps) => {
     }
   }
 
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
+  };
+
   return (
     <Card
       variant="outlined"
@@ -257,14 +276,34 @@ const EntryForm = (props: EntryFormProps) => {
                 setSpecialist(e.target.value);
               }}
             />
-            <TextField
-              label="Diagnosis Codes"
-              variant="outlined"
-              value={diagnosisCodes}
-              onChange={(e) => {
-                setDiagnosisCodes(e.target.value);
-              }}
-            />
+
+            <FormControl>
+              <InputLabel id="diagnosis-codes-label">Diagnoses</InputLabel>
+              <Select
+                labelId="diagnosis-codes-label"
+                id="diagnosis-codes"
+                multiple
+                value={selectedDiagnoses}
+                onChange={(e) => {
+                  setSelectedDiagnoses(
+                    typeof e.target.value === "string"
+                      ? [e.target.value]
+                      : e.target.value
+                  );
+                }}
+                input={<OutlinedInput label="Diagnoses" />}
+                renderValue={(selected) => selected.join(", ")}
+                MenuProps={MenuProps}
+              >
+                {diagnoses.map((d) => (
+                  <MenuItem key={d.code} value={d.code}>
+                    <Checkbox checked={selectedDiagnoses.includes(d.code)} />
+                    <ListItemText primary={`${d.code} ${d.name}`} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
             <FormControl>
               <FormLabel id="entry-type-group-label">Entry Type</FormLabel>
               <RadioGroup

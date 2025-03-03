@@ -80,7 +80,7 @@ const Patient = () => {
       </Typography>
       <Typography>SSN: {patient.ssn}</Typography>
       <Typography>Occupation: {patient.occupation}</Typography>
-      <EntryForm patient={patient} />
+      <EntryForm patient={patient} diagnoses={diagnoses} />
       <Typography align="left" variant="h5">
         Entries
       </Typography>
